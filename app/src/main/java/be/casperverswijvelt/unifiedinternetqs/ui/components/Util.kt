@@ -261,8 +261,16 @@ sealed class PermissionInfo(
             R.string.bluetooth,
         )
     )
-
-    data object ReadPhoneState : PermissionInfo(
+    object Notification: PermissionInfo(
+        R.string.notification,
+        R.string.notification_description
+    )
+    object Location: PermissionInfo(
+        R.string.location,
+        R.string.location_description,
+        arrayOf(R.string.wifi)
+    )
+    object ReadPhoneState: PermissionInfo(
         R.string.read_phone_state,
         R.string.read_phone_state_description,
         arrayOf(

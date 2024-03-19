@@ -47,7 +47,12 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import be.casperverswijvelt.unifiedinternetqs.R
+import be.casperverswijvelt.unifiedinternetqs.data.BITPreferences
+import be.casperverswijvelt.unifiedinternetqs.data.ShellMethod
+import be.casperverswijvelt.unifiedinternetqs.util.ShizukuUtil
 import be.casperverswijvelt.unifiedinternetqs.util.hasShellAccess
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun PermissionVisualizer (
@@ -55,6 +60,7 @@ fun PermissionVisualizer (
     navController: NavController
 ) {
     val context = LocalContext.current
+    val preferences = BITPreferences(context)
 
     val errorBgColor = MaterialTheme.colorScheme.errorContainer
     val errorContentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -83,6 +89,20 @@ fun PermissionVisualizer (
 
         if (!hasShellAccess(context)) {
             tempPermissionWarnings.add(PermissionInfo.Shell)
+        }
+
+        // check notification permission if on Android 12 or above and using Shizuku
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
+            val shellMethod = runBlocking {
+                preferences.getShellMethod.first()
+            }
+            if (shellMethod == ShellMethod.SHIZUKU) {
+                tempPermissionWarnings.add(PermissionInfo.Notification)
+            }
         }
 
         if (
@@ -188,6 +208,11 @@ fun PermissionVisualizer (
                                     }
                                     PermissionInfo.ReadPhoneState -> {
                                         launcher.launch(Manifest.permission.READ_PHONE_STATE)
+                                    }
+                                    PermissionInfo.Notification -> {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
                                     }
                                 }
                             }

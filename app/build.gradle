@@ -39,6 +39,7 @@ android {
     namespace 'be.casperverswijvelt.unifiedinternetqs'
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {

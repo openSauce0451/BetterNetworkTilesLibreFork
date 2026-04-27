@@ -1,17 +1,10 @@
-# Better Network Tiles Libre
+# Better Network Tiles Libre Fork
 
 > [!WARNING]  
-> I created this fork because on a CalyxOS update the tiles were gone. They have since fixed this hence I no longer need this app.  
-> The current version should work but I won't be updating it any further. Therefore I'm gonna archive this repo.  
-> Feel free to fork and continue!
+> This is a work-in-progress fork based on D3SOX' Better Network Tiles Libre, which is a fork of Better Internet Tiles by casperverswijvelt.
 
 This is a fork of the original Better Internet Tiles by [casperverswijvelt](https://github.com/casperverswijvelt) to remove every non-libre component and analytics and merge some fixes
 
-<img alt="GitHub" src="https://img.shields.io/github/license/D3SOX/Better-Network-Tiles-Libre"> <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/D3SOX/Better-Internet-Tiles-Libre"> <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/D3SOX/Better-Internet-Tiles-Libre">
-
-<a href="https://github.com/D3SOX/Better-Network-Tiles-Libre/releases"><img alt="Get it on GitHub" src="https://github.com/D3SOX/Better-Network-Tiles-Libre/assets/24937357/c3c0042b-e4c2-465f-8f1b-f0b7a943fb67" height="80" /></a>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/me.d3sox.betternetworktiles.libre"><img alt="Get it on IzzyOnDroid" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="80" /></a>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/D3SOX/Better-Network-Tiles-Libre"><img alt="Get it on Obtainium" src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png" height="80" /></a>
 
 ## Screenshots
 

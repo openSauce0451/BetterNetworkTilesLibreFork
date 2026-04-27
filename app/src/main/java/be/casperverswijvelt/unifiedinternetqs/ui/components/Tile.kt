@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -51,7 +51,7 @@ fun LiveTile(
     modifier: Modifier = Modifier,
     tileBehaviour: TileBehaviour
 ) {
-    var tileState by remember { mutableStateOf(tileBehaviour.tileState) }
+    var tileState by remember { mutableStateOf(tileBehaviour.finalTileState) }
     val context = LocalContext.current
 
     Tile(
@@ -94,26 +94,30 @@ fun Tile(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val darkTheme = isSystemInDarkTheme()
-    val scheme = MaterialTheme.colorScheme
+    val scheme = dynamicDarkColorScheme(context)
     val colorAnimationSpec = tween<Color>(350, easing = EaseInOut)
     val disabledBgColor by buttonBackgroundColor()
 
     val bgColor by animateColorAsState(
         targetValue = if (active)
-            if (darkTheme) scheme.onPrimaryContainer else scheme.primaryContainer
+            scheme.secondary
         else
             disabledBgColor,
-        animationSpec = colorAnimationSpec
+        animationSpec = colorAnimationSpec,
+        label = "tile background color"
     )
     val fgColor by animateColorAsState(
         targetValue = if (active) Color.Black else if (darkTheme) Color.White else Color.Black,
-        animationSpec = colorAnimationSpec
+        animationSpec = colorAnimationSpec,
+        label = "tile foreground color"
     )
     val fgColorLight = Color(fgColor.red, fgColor.green, fgColor.blue, .7f)
     val alpha by animateFloatAsState(
         targetValue = if (unavailable) .35f else 1f,
-        animationSpec = tween(350, easing = EaseInOut)
+        animationSpec = tween(350, easing = EaseInOut),
+        label = "tile alpha"
     )
 
     Box(

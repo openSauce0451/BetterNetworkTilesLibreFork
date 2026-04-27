@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.service.quicksettings.TileService
 import android.util.Log
+import be.casperverswijvelt.unifiedinternetqs.TileSyncService
 import be.casperverswijvelt.unifiedinternetqs.tilebehaviour.TileBehaviour
 import be.casperverswijvelt.unifiedinternetqs.tilebehaviour.TileState
 import be.casperverswijvelt.unifiedinternetqs.util.ExecutorServiceSingleton
@@ -14,7 +15,7 @@ abstract class ReportingTileService: TileService() {
     protected lateinit var tileBehaviour: TileBehaviour
 
     private val onUpdateTile: (TileState) -> Unit = {
-        requestUpdateTile()
+        syncTile(it)
     }
 
     override fun onCreate() {
@@ -37,20 +38,14 @@ abstract class ReportingTileService: TileService() {
         super.onDestroy()
     }
 
-    /**
-     * Request the tile to be updated by requesting listening state
-     * on the tile service
-     */
-    private fun requestUpdateTile() {
+    override fun onTileAdded() {
+        super.onTileAdded()
+
+        // Tile added, request for it to enter listening state
         requestListeningState(
             applicationContext,
             ComponentName(application, javaClass)
         )
-    }
-
-    override fun onTileAdded() {
-        super.onTileAdded()
-        requestUpdateTile()
     }
 
     protected abstract fun getTag(): String
@@ -62,8 +57,14 @@ abstract class ReportingTileService: TileService() {
     override fun onStartListening() {
         super.onStartListening()
         log("Start listening")
+        TileSyncService.addBehaviourListener(tileBehaviour)
+        syncTile(tileBehaviour.finalTileState)
+    }
 
-        syncTile()
+    override fun onStopListening() {
+        super.onStopListening()
+        TileSyncService.removeBehaviourListener(tileBehaviour)
+        log("Stop listening")
     }
 
     override fun onClick() {
@@ -71,9 +72,8 @@ abstract class ReportingTileService: TileService() {
         tileBehaviour.onClick()
     }
 
-    private fun syncTile() {
+    private fun syncTile(tileState: TileState) {
         qsTile?.let {
-            val tileState = tileBehaviour.tileState
             it.label = tileState.label
             it.subtitle = tileState.subtitle
             it.state = tileState.state

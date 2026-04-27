@@ -48,6 +48,10 @@ class TileSyncService: Service() {
     companion object {
         const val TAG = "TileSyncService"
 
+        private var instance: TileSyncService? = null
+        val isRunning
+            get() = instance != null
+
         private var latestAvailableWifiNetwork: Network? = null
         var wifiConnected = false
         var wifiSSID: String? = null
@@ -97,12 +101,18 @@ class TileSyncService: Service() {
             }
             else -> {}
         }
-        wifiSSID = if (wifiConnected)
-            getConnectedWifiSSID(applicationContext)
-        else
-            null
-        updateWifiTile()
-        updateInternetTile()
+
+        val setSSID: (ssid: String?) -> Unit = {
+            wifiSSID = it
+            updateWifiTile()
+            updateInternetTile()
+        }
+
+        if (wifiConnected) {
+            getConnectedWifiSSID(applicationContext) { setSSID(it) }
+        } else {
+            setSSID(null)
+        }
     }
     private val cellularChangeListener: CellularChangeListener = CellularChangeListener { type, data ->
         when(type) {
@@ -188,26 +198,33 @@ class TileSyncService: Service() {
         super.onCreate()
         Log.d(TAG, "onCreate")
 
+        instance = this
+
         // Wi-Fi
         wifiChangeListener.startListening(applicationContext)
+
+        // Cellular
         cellularChangeListener.startListening(applicationContext)
         registerReceiver(
             airplaneModeReceiver,
             IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED)
         )
+
+        // NFC
         registerReceiver(
             nfcReceiver,
             IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED)
         )
-        val btIntentFilter = IntentFilter()
-        btIntentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
-        btIntentFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
-        btIntentFilter.addAction(ACT_BATTERY_LEVEL_CHANGED)
+
+        // Bluetooth
         registerReceiver(
             bluetoothReceiver,
-            btIntentFilter
+            IntentFilter().apply {
+                addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+                addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+                addAction(ACT_BATTERY_LEVEL_CHANGED)
+            }
         )
-
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter?.getProfileProxy(
             applicationContext,
             object : BluetoothProfile.ServiceListener {
@@ -226,21 +243,31 @@ class TileSyncService: Service() {
             BluetoothProfile.HEADSET
         )
 
-        updateWifiTile()
-        updateMobileDataTile()
-        updateInternetTile()
-        updateNFCTile()
+        updateAllTiles()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
 
+        instance = null
+
         wifiChangeListener.stopListening(applicationContext)
         cellularChangeListener.stopListening(applicationContext)
         unregisterReceiver(airplaneModeReceiver)
         unregisterReceiver(nfcReceiver)
         unregisterReceiver(bluetoothReceiver)
+
+        updateAllTiles()
+    }
+
+    private fun updateAllTiles() {
+        updateWifiTile()
+        updateMobileDataTile()
+        updateInternetTile()
+        updateNFCTile()
+        updateAirplaneModeTile()
+        updateBluetoothTile()
     }
 
     private fun updateWifiTile() {
@@ -281,7 +308,8 @@ class TileSyncService: Service() {
     }
 
     private fun <T>requestTileBehaviourUpdate(cls: Class<T>) {
-        behaviourListeners.forEach {
+        // Clone list before iterating to avoid ConcurrentModificationException
+        (behaviourListeners.clone() as List<TileBehaviour>).forEach {
             if (it.javaClass == cls) it.updateTile()
         }
     }

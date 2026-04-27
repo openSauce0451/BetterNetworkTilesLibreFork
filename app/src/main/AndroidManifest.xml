@@ -9,8 +9,6 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
@@ -25,7 +23,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UnifiedInternetQS"
         android:exported="false"
-        android:localeConfig="@xml/locales_config"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="tiramisu">
 
@@ -39,15 +36,19 @@
 
         <service
             android:name=".TileSyncService"
-            android:foregroundServiceType="location"
+            android:foregroundServiceType="specialUse"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="This service keeps the state in sync for TileServices in active mode"/>
+        </service>
 
         <receiver
-            android:name=".BootCompletedBroadcastReceiver"
+            android:name=".SyncServiceBroadcastReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
@@ -83,6 +84,8 @@
             android:exported="true">
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -95,6 +98,8 @@
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
@@ -109,6 +114,8 @@
             android:exported="true">
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -122,6 +129,8 @@
             android:exported="true">
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -134,6 +143,8 @@
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

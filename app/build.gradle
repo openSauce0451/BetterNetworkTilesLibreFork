@@ -1,6 +1,5 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
     id "org.jetbrains.kotlin.plugin.compose" version "$kotlin_version"
 }
 
@@ -41,7 +40,6 @@ android {
     namespace 'be.casperverswijvelt.unifiedinternetqs'
 
     buildFeatures {
-        buildConfig = false
         compose = true
     }
     composeOptions {

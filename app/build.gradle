@@ -11,8 +11,8 @@ android {
     defaultConfig {
         applicationId "be.casperverswijvelt.unifiedinternetqs"
         targetSdkVersion 37
-        compileSdk 35
-        minSdkVersion 31
+        compileSdk 36
+        minSdkVersion 32
         versionCode 3020000
         versionName "3.2"
 
